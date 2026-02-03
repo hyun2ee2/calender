@@ -93,9 +93,11 @@ public class ScheduleService {
         ScheduleEntity schedule = repository.findById(scheduled)
                 .orElseThrow(() -> new IllegalIdentifierException("존재하지 않는 일정입니다."));
 
+        // 비밀번호 검증
         if(!schedule.getPassword().equals(request.getPassword())) {
             throw new IllegalIdentifierException("비밀번호가 일치하지 않습니다.");
         }
+        // 비밀번호가 맞으면 schedule 삭제
         repository.delete(schedule);
     }
 }
