@@ -84,4 +84,17 @@ public class ScheduleService {
                 schedule.getAuthor()
         );
     }
+
+    // 삭제
+    @Transactional
+    public void delete(Long scheduled) {
+        boolean existence = repository.existsById(scheduled);
+
+        // 작성자명이 존재하지 않을 경우
+        if(!existence) {
+            throw new IllegalArgumentException("존재하지 않는 작성자입니다.");
+        }
+        // 작성자가 존재할 경우
+        repository.deleteById(scheduled);
+    }
 }
