@@ -4,6 +4,7 @@ import com.caleander.schedule.dto.*;
 import com.caleander.schedule.entity.ScheduleEntity;
 import com.caleander.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +56,7 @@ public class ScheduleService {
         List<ScheduleEntity> scheduleEntities = repository.findAll();
 
         List<GetOneScheduleResponse> dtos = new ArrayList<>();
-        for(ScheduleEntity scheduleEntity : scheduleEntities) {
+        for (ScheduleEntity scheduleEntity : scheduleEntities) {
             GetOneScheduleResponse dto = new GetOneScheduleResponse(
                     scheduleEntity.getId(),
                     scheduleEntity.getTitle(),
@@ -87,14 +88,14 @@ public class ScheduleService {
 
     // 삭제
     @Transactional
-    public void delete(Long scheduled) {
-        boolean existence = repository.existsById(scheduled);
+    public void delete(Long scheduled, DeleteScheduleRequest request) {
 
-        // 작성자명이 존재하지 않을 경우
-        if(!existence) {
-            throw new IllegalArgumentException("존재하지 않는 작성자입니다.");
+        ScheduleEntity schedule = repository.findById(scheduled)
+                .orElseThrow(() -> new IllegalIdentifierException("존재하지 않는 일정입니다."));
+
+        if(!schedule.getPassword().equals(request.getPassword())) {
+            throw new IllegalIdentifierException("비밀번호가 일치하지 않습니다.");
         }
-        // 작성자가 존재할 경우
-        repository.deleteById(scheduled);
+        repository.delete(schedule);
     }
 }
