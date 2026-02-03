@@ -1,8 +1,6 @@
 package com.caleander.schedule.service;
 
-import com.caleander.schedule.dto.CreateScheduleRequest;
-import com.caleander.schedule.dto.CreateScheduleResponse;
-import com.caleander.schedule.dto.GetOneScheduleResponse;
+import com.caleander.schedule.dto.*;
 import com.caleander.schedule.entity.ScheduleEntity;
 import com.caleander.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -67,5 +65,23 @@ public class ScheduleService {
             dtos.add(dto);
         }
         return dtos;
+    }
+
+    // 수정
+    @Transactional
+    public UpdateScheduleResponse update(Long scheduled, UpdateScheduleRequest request) {
+        ScheduleEntity schedule = repository.findById(scheduled).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 작성자입니다.")
+        );
+        schedule.update(
+                request.getTitle(),
+                request.getAuthor()
+        );
+        return new UpdateScheduleResponse(
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContent(),
+                schedule.getAuthor()
+        );
     }
 }
