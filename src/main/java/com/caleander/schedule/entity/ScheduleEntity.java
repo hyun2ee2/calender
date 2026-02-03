@@ -65,4 +65,10 @@ public class ScheduleEntity {
         this.author = author;
         this.password = password;
     }
+
+    // 업데이트 메서드
+    public void update(String title, String author) {
+        this.title = title;
+        this.author = author;
+    }
 }
