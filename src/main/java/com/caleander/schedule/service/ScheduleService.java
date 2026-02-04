@@ -4,7 +4,6 @@ import com.caleander.schedule.dto.*;
 import com.caleander.schedule.entity.ScheduleEntity;
 import com.caleander.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,11 +35,17 @@ public class ScheduleService {
         );
     }
 
-    // 다 건 조회
+    // 조회
     @Transactional(readOnly = true)
     public List<GetOneScheduleResponse> getByAuthor(String author) {
-        List<ScheduleEntity> schedules = repository.findAllByAuthor(author);
+        List<ScheduleEntity> schedules;
 
+        if(author != null && !author.isBlank()) {
+            schedules = repository.findAllByAuthorOrderByUpdatedAtDesc(author);
+        }
+        else {
+            schedules = repository.findAllByOrderByUpdatedAtDesc();
+        }
         return schedules.stream()
                 .map(schedule -> new GetOneScheduleResponse(
                         schedule.getId(),
@@ -55,8 +60,14 @@ public class ScheduleService {
     @Transactional
     public UpdateScheduleResponse update(Long scheduled, UpdateScheduleRequest request) {
         ScheduleEntity schedule = repository.findById(scheduled).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 작성자입니다.")
+                () -> new IllegalArgumentException("존재하지 않는 일정입니다.")
         );
+
+        // 비밀번호 검증
+        if(!schedule.getPassword().equals(request.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
         schedule.update(
                 request.getTitle(),
                 request.getAuthor()
@@ -74,11 +85,11 @@ public class ScheduleService {
     public void delete(Long scheduled, DeleteScheduleRequest request) {
 
         ScheduleEntity schedule = repository.findById(scheduled)
-                .orElseThrow(() -> new IllegalIdentifierException("존재하지 않는 일정입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일정입니다."));
 
         // 비밀번호 검증
         if(!schedule.getPassword().equals(request.getPassword())) {
-            throw new IllegalIdentifierException("비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
         // 비밀번호가 맞으면 schedule 삭제
         repository.delete(schedule);
