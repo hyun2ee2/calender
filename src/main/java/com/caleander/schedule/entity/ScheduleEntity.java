@@ -64,6 +64,7 @@ public class ScheduleEntity {
         this.content = content;
         this.author = author;
         this.password = password;
+        this.createdAt = LocalDateTime.now();
     }
 
     // 업데이트 메서드
