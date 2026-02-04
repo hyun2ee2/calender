@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("/calender")
+@RestController
+@RequestMapping("/calender")
 @RequiredArgsConstructor
 public class ScheduleController {
     private final ScheduleService scheduleService;
@@ -22,17 +23,11 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    // 단 건 GET
+    // 작성자 일정 전체 불러오기 GET
     @GetMapping("/{author}")
-    public ResponseEntity<GetOneScheduleResponse> getOneScheduleResponse(@PathVariable String author) {
-        GetOneScheduleResponse result = scheduleService.getOne(author);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-    // 다 건 GET
-    @GetMapping
-    public ResponseEntity<List<GetOneScheduleResponse>> getAllAuthor() {
-        List<GetOneScheduleResponse> result = scheduleService.getAll();
+    public ResponseEntity<List<GetOneScheduleResponse>> getByAuthor(
+            @PathVariable String author) {
+        List<GetOneScheduleResponse> result = scheduleService.getByAuthor(author);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
